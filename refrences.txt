@@ -1,0 +1,13 @@
+ESP-Wroom-32 pinout-reference
+https://lastminuteengineers.com/esp32-wroom-32-pinout-reference/
+https://www.electronicshub.org/esp32-pinout/
+https://www.youtube.com/watch?v=RiYnucfy_rs&t=422s\
+
+Circuit design
+https://app.cirkitdesigner.com/project
+
+Arduino LCD screen
+https://content.instructables.com/FC7/0BX0/JSCG2QWZ/FC70BX0JSCG2QWZ.jpg?auto=webp&frame=1&width=1024&height=1024&fit=bounds&md=MjAxOS0wMi0xOSAyMTo1MDoyMy4w
+https://www.instructables.com/LCD-1602-With-Arduino-Uno-R3/
+https://lastminuteengineers.com/arduino-1602-character-lcd-tutorial/
+https://www.youtube.com/watch?v=g_6OJDyUw1w
