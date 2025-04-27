@@ -65,3 +65,21 @@ This project integrates real-time network traffic analysis with biometric authen
 
 ## Conclusion
 The Packet Sniffer with Biometrics for Secure Network Monitoring provides a robust solution for network security by combining real-time traffic analysis with biometric authentication, ensuring sensitive data remains protected and unauthorized access is prevented.
+
+## Folder Structure
+/ Biometrics_Packet_Sniffer
+├── .git/                         # Git repository (hidden folder)
+├── Arduino_uno_slave/             # (Folder for Arduino Uno code)
+├── data/                          # (Probably for saved packets, etc.)
+├── Documentation/                 # (Project docs)
+├── main/                          # (ESP32 Main Code Here)
+│   ├── biometric.ino              # Fingerprint/UART handling
+│   ├── crypto_utils.ino           # AES-256 encryption utilities
+│   ├── isr_handlers.ino           # ISR (interrupt service routines)
+│   ├── lcd_ui.ino                 # LCD display code
+│   ├── main.ino                   # Entry point (setup + loop)
+│   ├── packet_sniffer.ino         # WiFi packet capture/sniffing
+├── test/                          # (Test code folder, maybe mockups)
+├── Byte_builder_progress_report.docx   # Progress report
+├── README.md                      # Project overview
+├── Requirements Specification.pdf # Final project requirements

@@ -1,10 +1,16 @@
-void setupBiometric() {
-    Serial.println("[Biometric] Initializing sensor...");
-    // Init fingerprint or face recognition hardware
-}
+#include "packet_sniffer.h"
 
-bool verifyUser() {
-    Serial.println("[Biometric] Verifying...");
-    // Placeholder for biometric verification
-    return true;  // stub
+void listenForFingerprintCommand() {
+  if (Serial2.available()) {
+    String incoming = Serial2.readStringUntil('\n');
+    incoming.trim(); // Remove any trailing \r or spaces
+
+    if (incoming == "MATCH") {
+      Serial.println("✅ Fingerprint MATCH received!");
+      startSniffing();   // Start WiFi packet sniffing
+    }
+    else if (incoming == "TIMEOUT") {
+      Serial.println("⚠️ Timeout received. No action taken.");
+    }
+  }
 }
