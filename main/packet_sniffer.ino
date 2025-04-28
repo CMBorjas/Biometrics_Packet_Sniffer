@@ -1,9 +1,15 @@
 void setupSniffer() {
-    Serial.println("[Sniffer] Setting up packet capture...");
-    // Init mock sniffing or serial/WiFi capture
-    }
+  Serial.println("[Sniffer] SetupSniffer placeholder");
+}
 
 void capturePacket() {
-    Serial.println("[Sniffer] Simulating packet...");
-    // Simulate traffic
+  Serial.println("[Sniffer] CapturePacket placeholder");
+}
+
+void startSniffing() {
+  Serial.println("[Sniffer] Starting sniffing (placeholder)");
+}
+
+void initWiFiSniffer() {
+  Serial.println("[Sniffer] Initializing WiFi sniffer (placeholder)");
 }
