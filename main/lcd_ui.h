@@ -28,5 +28,6 @@ void lcdDisplayTimeout();
 void lcdDisplayUnknownInput();
 void lcdDisplaySystemStatus(const String& status);
 void lcdDisplaySniffingStatus(const String& status);
+void lcdClear();
 
 #endif // LCD_UI_H

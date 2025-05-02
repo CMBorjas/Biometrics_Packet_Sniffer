@@ -1,13 +1,19 @@
 #include <WiFi.h>
 #include "esp_wifi.h"
-#include "esp_wifi_types.h"
-#include "packet_sniffer.h"
 #include "esp_system.h"
 #include "esp_event.h"
 #include "nvs_flash.h"
 
 // ==========================
-// Sniffer Callback
+// Pin and State Definitions
+// ==========================
+#define LED_PIN 2  // Built-in LED on most ESP32 boards
+
+bool biometricAuthorized = false;
+bool snifferActive = false;
+
+// ==========================
+// Sniffer Callback Function
 // ==========================
 void sniffer_callback(void* buf, wifi_promiscuous_pkt_type_t type) {
   if (type == WIFI_PKT_MGMT || type == WIFI_PKT_DATA) {
@@ -29,7 +35,7 @@ void sniffer_callback(void* buf, wifi_promiscuous_pkt_type_t type) {
 }
 
 // ==========================
-// Initializer (called during setup)
+// WiFi Sniffer Initialization
 // ==========================
 void initWiFiPromiscuous() {
   wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
@@ -42,12 +48,12 @@ void initWiFiPromiscuous() {
   esp_wifi_set_storage(WIFI_STORAGE_RAM);
   esp_wifi_set_mode(WIFI_MODE_NULL);
   esp_wifi_start();
-
-  esp_wifi_set_channel(6, WIFI_SECOND_CHAN_NONE); // or experiment with 1–11
+  esp_wifi_set_channel(6, WIFI_SECOND_CHAN_NONE);
 
   wifi_promiscuous_filter_t filter = {
     .filter_mask = WIFI_PROMIS_FILTER_MASK_ALL
   };
+
   esp_wifi_set_promiscuous_filter(&filter);
 
   esp_wifi_set_promiscuous_rx_cb(&sniffer_callback);
@@ -57,24 +63,47 @@ void initWiFiPromiscuous() {
 }
 
 // ==========================
-// Runtime Sniff Control
+// Simulated Biometric Auth
 // ==========================
-void startSniffing() {
-  Serial.println("[Sniffer] Starting Wi-Fi Sniffing...");
-  esp_wifi_set_promiscuous(true);  // Reactivate if needed
-}
-
-void stopSniffing() {
-  esp_wifi_set_promiscuous(false);
-  Serial.println("[Sniffer] Stopped Wi-Fi Sniffing");
+bool checkBiometricAuthorization() {
+  Serial.println("🧬 Waiting for biometric authentication...");
+  delay(2000);  // Simulated fingerprint scan delay
+  return true;  // Set to false to simulate denial
 }
 
 // ==========================
-// Placeholder Compatibility
+// Arduino Setup Function
 // ==========================
-void initWiFiSniffer() {
-  // Retained for backward compatibility; use initWiFiPromiscuous instead
-  WiFi.mode(WIFI_MODE_NULL);
-  esp_wifi_set_promiscuous(false);
-  Serial.println("[Sniffer] WiFi Sniffer (stub) ready");
+void setup() {
+  Serial.begin(115200);
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, LOW);
+
+  // Initialize NVS — required for WiFi
+  esp_err_t ret = nvs_flash_init();
+  if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+    nvs_flash_erase();
+    nvs_flash_init();
+  }
+
+  Serial.println("🚀 System Initialization...");
+  biometricAuthorized = checkBiometricAuthorization();
+
+  if (biometricAuthorized) {
+    snifferActive = true;
+    Serial.println("🔓 Biometric access granted. Sniffer enabled.");
+    digitalWrite(LED_PIN, HIGH);
+    initWiFiPromiscuous();
+  } else {
+    snifferActive = false;
+    Serial.println("🔒 Biometric access denied. Sniffer disabled.");
+    digitalWrite(LED_PIN, LOW);
+  }
+}
+
+// ==========================
+// Arduino Loop Function
+// ==========================
+void loop() {
+  delay(1000);  // Passive loop — sniffer is interrupt-driven
 }
