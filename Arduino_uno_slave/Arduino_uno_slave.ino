@@ -1,21 +1,28 @@
 #include <Adafruit_Fingerprint.h>
 #include <SoftwareSerial.h>
-#include "crypto_utils.h"  // AES encryption module
+#include "crypto_utils.h"  // Updated AES encryption module
 
 #define R307_RX 2
 #define R307_TX 3
 #define ESP32_SIGNAL_PIN 7
 #define ACCESS_ID 1
 #define STOP_ID 99
-#define MAX_FAILED_ATTEMPTS 3
+#define MAX_FAILED_ATTEMPTS 5
 #define LOCKOUT_DURATION 30000
 
 SoftwareSerial fingerSerial(R307_RX, R307_TX);
 Adafruit_Fingerprint finger = Adafruit_Fingerprint(&fingerSerial);
 
-bool scanningEnabled = true;
 int failedAttempts = 0;
 unsigned long lockoutStart = 0;
+unsigned long lastAccessTime = 0;
+
+// Optional memory check
+int freeMemory() {
+  extern int __heap_start, *__brkval;
+  int v;
+  return (int)&v - (__brkval == 0 ? (int)&__heap_start : (int)__brkval);
+}
 
 void setup() {
   Serial.begin(9600);
@@ -23,23 +30,25 @@ void setup() {
   delay(100);
 
   finger.begin(57600);
+  delay(500);
+
   if (finger.verifyPassword()) {
-    Serial.println("UART: ✅ Found fingerprint sensor!");
+    Serial.println("Sensor OK");
   } else {
-    Serial.println("UART: ❌ Fingerprint sensor not found");
+    Serial.println("Sensor FAIL");
     while (1) { delay(1); }
   }
 
   pinMode(ESP32_SIGNAL_PIN, OUTPUT);
   digitalWrite(ESP32_SIGNAL_PIN, LOW);
 
-  Serial.println("UART: =====================================");
-  Serial.println("UART: Send 'e' to enroll ACCESS fingerprint (ID 1)");
-  Serial.println("UART: Send 's' to enroll STOP fingerprint (ID 99)");
-  Serial.println("UART: Send 'd' to delete ACCESS fingerprint");
-  Serial.println("UART: Send 'x' to clear ALL fingerprints");
-  Serial.println("UART: Place a finger to scan");
-  Serial.println("UART: =====================================");
+  Serial.println("Commands: e = enroll ID1, s = enroll ID99, d = delete ID1, x = clear DB");
+  Serial.println("Place finger to scan.");
+
+  lastAccessTime = millis();
+
+  Serial.print("Free RAM: ");
+  Serial.println(freeMemory());
 }
 
 void loop() {
@@ -61,7 +70,7 @@ void loop() {
   }
 
   if (isLockedOut()) {
-    Serial.println("LOCKED OUT. Wait...");
+    Serial.println("LOCKED OUT");
     delay(1000);
     return;
   }
@@ -71,49 +80,84 @@ void loop() {
 }
 
 void scanFingerprint() {
-  if (finger.getImage() != FINGERPRINT_OK) return;
-  if (finger.image2Tz() != FINGERPRINT_OK) {
-    logUnauthorized("Bad image conversion");
+  Serial.println("Scanning...");
+
+  const unsigned long scanTimeout = 15000; // 15 seconds max scan
+  unsigned long scanStart = millis();
+
+  while (millis() - scanStart < scanTimeout) {
+    uint8_t p = finger.getImage();
+
+    if (p == FINGERPRINT_NOFINGER) {
+      delay(100);
+      continue;
+    }
+
+    if (p != FINGERPRINT_OK) {
+      Serial.print("getImage failed: ");
+      Serial.println(p);
+      return;
+    }
+
+    Serial.println("Finger detected");
+    goto continue_scan;
+  }
+
+  Serial.println("❌ Fingerprint timeout (loop)");
+  logUnauthorized("Timeout");
+  return;
+
+continue_scan:
+  delay(1000);
+
+  uint8_t p = finger.image2Tz();
+  if (p != FINGERPRINT_OK) {
+    logUnauthorized("Bad image");
     return;
   }
-  if (finger.fingerFastSearch() != FINGERPRINT_OK) {
-    logUnauthorized("No fingerprint match");
+
+  p = finger.fingerFastSearch();
+  if (p != FINGERPRINT_OK) {
+    logUnauthorized("No match");
     return;
   }
 
   int id = finger.fingerID;
+  char logMsg[50];
+  snprintf(logMsg, sizeof(logMsg), "ID #%d @ %lu", id, millis());
 
-  if (id == ACCESS_ID && scanningEnabled) {
-    Serial.println("MATCH");
-    digitalWrite(ESP32_SIGNAL_PIN, HIGH);
-    delay(1000);
-    digitalWrite(ESP32_SIGNAL_PIN, LOW);
-    scanningEnabled = false;
-    failedAttempts = 0;
-  } 
-  else if (id == STOP_ID && !scanningEnabled) {
-    Serial.println("STOP");
-    digitalWrite(ESP32_SIGNAL_PIN, HIGH);
-    delay(1000);
-    digitalWrite(ESP32_SIGNAL_PIN, LOW);
-    scanningEnabled = true;
-    failedAttempts = 0;
-  } 
-  else {
-    logUnauthorized("Fingerprint not authorized");
-  }
+  char encrypted[33];
+  encryptToHex(logMsg, encrypted, sizeof(encrypted));
+
+  Serial.print("SECURE LOG: ");
+  Serial.println(encrypted);
+
+  digitalWrite(ESP32_SIGNAL_PIN, HIGH);
+  delay(1000);
+  digitalWrite(ESP32_SIGNAL_PIN, LOW);
+
+  failedAttempts = 0;
+  lastAccessTime = millis();
+
+  if (id == ACCESS_ID) Serial.println("MATCH");
+  else if (id == STOP_ID) Serial.println("STOP");
+  else logUnauthorized("Unauthorized ID");
 }
 
 void logUnauthorized(const char* reason) {
-  String event = String(reason) + " @ " + millis();
-  String hexEncrypted = encryptToHex(event);
+  char logMsg[64];
+  snprintf(logMsg, sizeof(logMsg), "%s @ %lu", reason, millis());
+
+  char encrypted[33];
+  encryptToHex(logMsg, encrypted, sizeof(encrypted));
+
   Serial.print("SECURE LOG: ");
-  Serial.println(hexEncrypted);
+  Serial.println(encrypted);
 
   failedAttempts++;
   if (failedAttempts >= MAX_FAILED_ATTEMPTS) {
     lockoutStart = millis();
-    Serial.println("❌ LOCKOUT ACTIVATED.");
+    Serial.println("LOCKOUT ACTIVATED");
   }
 }
 
@@ -123,7 +167,7 @@ bool isLockedOut() {
   if (millis() - lockoutStart >= LOCKOUT_DURATION) {
     lockoutStart = 0;
     failedAttempts = 0;
-    Serial.println("🔓 LOCKOUT CLEARED.");
+    Serial.println("LOCKOUT CLEARED");
     return false;
   }
 
@@ -131,49 +175,46 @@ bool isLockedOut() {
 }
 
 void enrollFingerprint(int id) {
-  Serial.print("UART: Enrolling fingerprint ID #");
+  Serial.print("Enroll ID #");
   Serial.println(id);
-  Serial.println("UART: Place finger...");
 
   while (finger.getImage() != FINGERPRINT_OK);
   if (finger.image2Tz(1) != FINGERPRINT_OK) {
-    Serial.println("UART: ❌ Failed first image");
+    Serial.println("Enroll fail step 1");
     return;
   }
 
-  Serial.println("UART: ✅ Image 1 captured. Remove finger.");
+  Serial.println("Image 1 OK. Remove finger.");
   delay(2000);
-  Serial.println("UART: Place same finger again...");
+  Serial.println("Place same finger again...");
 
   while (finger.getImage() != FINGERPRINT_OK);
   if (finger.image2Tz(2) != FINGERPRINT_OK) {
-    Serial.println("UART: ❌ Failed second image");
+    Serial.println("Enroll fail step 2");
     return;
   }
 
   if (finger.createModel() != FINGERPRINT_OK || finger.storeModel(id) != FINGERPRINT_OK) {
-    Serial.println("UART: ❌ Failed to store fingerprint");
+    Serial.println("Store fail");
     return;
   }
 
-  Serial.println("UART: ✅ Fingerprint enrolled!");
+  Serial.println("Enroll OK");
 }
 
 void deleteFingerprintByID(int id) {
-  int status = finger.deleteModel(id);
-  if (status == FINGERPRINT_OK) {
-    Serial.print("UART: 🧹 Deleted fingerprint ID #");
+  if (finger.deleteModel(id) == FINGERPRINT_OK) {
+    Serial.print("Deleted ID #");
     Serial.println(id);
   } else {
-    Serial.println("UART: ❌ Failed to delete fingerprint.");
+    Serial.println("Delete fail");
   }
 }
 
 void clearAllFingerprints() {
-  int status = finger.emptyDatabase();
-  if (status == FINGERPRINT_OK) {
-    Serial.println("UART: 🧹 All fingerprints deleted.");
+  if (finger.emptyDatabase() == FINGERPRINT_OK) {
+    Serial.println("DB cleared");
   } else {
-    Serial.println("UART: ❌ Failed to clear fingerprint database.");
+    Serial.println("Clear DB fail");
   }
 }

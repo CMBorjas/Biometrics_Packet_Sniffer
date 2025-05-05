@@ -1,0 +1,59 @@
+<mxfile host="Electron" modified="2025-04-24T23:12:06.597Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/22.0.2 Chrome/114.0.5735.289 Electron/25.8.4 Safari/537.36" etag="uvsAgwYa5uuLiS40X8VA" version="22.0.2" type="device">
+  <diagram name="Page-1" id="OG3AB_cYNM9TVR3OHTjU">
+    <mxGraphModel dx="1036" dy="702" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="dhaCIdy_boi3vyWNEVU_-7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;shape=link;" edge="1" parent="1" source="dhaCIdy_boi3vyWNEVU_-1" target="dhaCIdy_boi3vyWNEVU_-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dhaCIdy_boi3vyWNEVU_-17" value="Duplex" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="dhaCIdy_boi3vyWNEVU_-7">
+          <mxGeometry x="-0.1273" y="-2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dhaCIdy_boi3vyWNEVU_-19" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="dhaCIdy_boi3vyWNEVU_-1" target="dhaCIdy_boi3vyWNEVU_-18">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dhaCIdy_boi3vyWNEVU_-1" value="ESP32" style="rounded=0;whiteSpace=wrap;html=1;fontSize=20;" vertex="1" parent="1">
+          <mxGeometry x="80" y="140" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="dhaCIdy_boi3vyWNEVU_-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;endArrow=none;endFill=0;shape=link;" edge="1" parent="1" source="dhaCIdy_boi3vyWNEVU_-2" target="dhaCIdy_boi3vyWNEVU_-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dhaCIdy_boi3vyWNEVU_-16" value="Duplex" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="dhaCIdy_boi3vyWNEVU_-8">
+          <mxGeometry x="0.0923" y="-3" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dhaCIdy_boi3vyWNEVU_-2" value="I2C Board" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="310" y="145" width="70" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="dhaCIdy_boi3vyWNEVU_-15" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="dhaCIdy_boi3vyWNEVU_-3" target="dhaCIdy_boi3vyWNEVU_-14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dhaCIdy_boi3vyWNEVU_-3" value="Arduino Uno" style="rounded=0;whiteSpace=wrap;html=1;fontSize=20;" vertex="1" parent="1">
+          <mxGeometry x="510" y="140" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="dhaCIdy_boi3vyWNEVU_-13" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="dhaCIdy_boi3vyWNEVU_-6" target="dhaCIdy_boi3vyWNEVU_-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dhaCIdy_boi3vyWNEVU_-6" value="Thumbprint Sensor" style="rounded=0;whiteSpace=wrap;html=1;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="530" y="350" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="dhaCIdy_boi3vyWNEVU_-12" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="dhaCIdy_boi3vyWNEVU_-11" target="dhaCIdy_boi3vyWNEVU_-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dhaCIdy_boi3vyWNEVU_-11" value="" style="html=1;verticalLabelPosition=bottom;align=center;labelBackgroundColor=#ffffff;verticalAlign=top;strokeWidth=2;strokeColor=#0080F0;shadow=0;dashed=0;shape=mxgraph.ios7.icons.wifi;pointerEvents=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="109.99999999999997" y="50" width="60" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="dhaCIdy_boi3vyWNEVU_-14" value="&lt;font style=&quot;font-size: 20px;&quot;&gt;Logs&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="680" y="310" width="120" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="dhaCIdy_boi3vyWNEVU_-18" value="LCD Display" style="rounded=0;whiteSpace=wrap;html=1;fontSize=20;" vertex="1" parent="1">
+          <mxGeometry x="80" y="280" width="120" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

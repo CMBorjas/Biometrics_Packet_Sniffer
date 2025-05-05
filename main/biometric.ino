@@ -2,14 +2,16 @@
 #include "packet_sniffer.h"
 
 extern bool scanningLocked;
+extern void handleFallbackCommand(const String& cmd);
 
 // Called during `setup()` to verify biometric access before allowing sniffer startup
 bool checkBiometricAuthorization() {
-  updateLCDStatus("Scan Finger...");
+  updateLCDStatus("Scan Finger (30s)...");
+
   Serial.println("🧬 Waiting for fingerprint match (Serial2)...");
 
   unsigned long startTime = millis();
-  while (millis() - startTime < 10000) {  // 10-second timeout
+  while (millis() - startTime < 30000) {  // 10-second timeout
     if (Serial2.available()) {
       String incoming = Serial2.readStringUntil('\n');
       incoming.trim();
@@ -47,6 +49,10 @@ void listenForFingerprintCommand() {
       updateLCDStatus("Stopping Scan");
       stopSniffing();
       scanningLocked = false;
+    }
+    else if (incoming == "FALLBACK") {
+      Serial.println("🔓 FALLBACK override received");
+      handleFallbackCommand("FALLBACK");
     }
   }
 }
