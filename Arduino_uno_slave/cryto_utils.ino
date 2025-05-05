@@ -1,7 +1,7 @@
-#define AES256 1
-#define ECB 1
 #include "aes.h"
 #include "crypto_utils.h"
+#include <string.h>
+#include <stdio.h>
 
 static uint8_t key[32] = {
   0x60, 0x3d, 0xeb, 0x10, 0x15, 0xca, 0x71, 0xbe,
@@ -10,19 +10,22 @@ static uint8_t key[32] = {
   0x2d, 0x98, 0x10, 0xa3, 0x09, 0x14, 0xdf, 0xf4
 };
 
-String encryptToHex(const String &plain) {
+void encryptToHex(const char* input, char* output, size_t outputLen) {
+  if (!input || !output || outputLen < 33) return;  // 32 hex chars + null
+
   struct AES_ctx ctx;
-  uint8_t buffer[32] = {0};
-  strncpy((char*)buffer, plain.c_str(), 31);
+  uint8_t buffer[16] = {0};  // Use 16 bytes for AES-128 or first block of AES-256
+
+  // Copy input string to buffer (truncate if longer)
+  strncpy((char*)buffer, input, sizeof(buffer) - 1);
 
   AES_init_ctx(&ctx, key);
-  AES_ECB_encrypt(&ctx, buffer);
+  AES_ECB_encrypt(&ctx, buffer);  // Encrypt in-place
 
-  String hex = "";
-  for (int i = 0; i < 32; i++) {
-    if (buffer[i] < 0x10) hex += "0";
-    hex += String(buffer[i], HEX);
+  // Convert encrypted bytes to hex
+  for (int i = 0; i < 16; ++i) {
+    sprintf(&output[i * 2], "%02x", buffer[i]);
   }
 
-  return hex;
+  output[32] = '\0';  // Null-terminate
 }

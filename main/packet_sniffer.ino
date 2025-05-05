@@ -9,7 +9,7 @@
 // ==========================
 // Sniffer Callback
 // ==========================
-void sniffer_callback(void* buf, wifi_promiscuous_pkt_type_t type) {
+void snifferCallback(void* buf, wifi_promiscuous_pkt_type_t type) {
   if (type == WIFI_PKT_MGMT || type == WIFI_PKT_DATA) {
     wifi_promiscuous_pkt_t *pkt = (wifi_promiscuous_pkt_t *)buf;
     uint8_t *data = pkt->payload;
@@ -29,9 +29,20 @@ void sniffer_callback(void* buf, wifi_promiscuous_pkt_type_t type) {
 }
 
 // ==========================
-// Initializer (called during setup)
+// Initializer (called during setup only)
 // ==========================
 void initWiFiPromiscuous() {
+  // REQUIRED by ESP32 Wi-Fi stack
+  if (nvs_flash_init() != ESP_OK) {
+    Serial.println("❌ NVS init failed");
+    return;
+  }
+
+  if (esp_event_loop_create_default() != ESP_OK) {
+    Serial.println("❌ Event loop creation failed");
+    return;
+  }
+
   wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
   esp_err_t ret = esp_wifi_init(&cfg);
   if (ret != ESP_OK) {
@@ -40,28 +51,29 @@ void initWiFiPromiscuous() {
   }
 
   esp_wifi_set_storage(WIFI_STORAGE_RAM);
-  esp_wifi_set_mode(WIFI_MODE_NULL);
+  esp_wifi_set_mode(WIFI_MODE_NULL);  // Passive mode
   esp_wifi_start();
 
-  esp_wifi_set_channel(6, WIFI_SECOND_CHAN_NONE); // or experiment with 1–11
+  esp_wifi_set_channel(6, WIFI_SECOND_CHAN_NONE);  // Pick your sniffing channel
 
   wifi_promiscuous_filter_t filter = {
     .filter_mask = WIFI_PROMIS_FILTER_MASK_ALL
   };
   esp_wifi_set_promiscuous_filter(&filter);
 
-  esp_wifi_set_promiscuous_rx_cb(&sniffer_callback);
-  esp_wifi_set_promiscuous(true);
-
-  Serial.println("✅ ESP32 is now in promiscuous mode");
+  Serial.println("[Sniffer] Initialized — not sniffing yet");
 }
 
 // ==========================
 // Runtime Sniff Control
 // ==========================
 void startSniffing() {
-  Serial.println("[Sniffer] Starting Wi-Fi Sniffing...");
-  esp_wifi_set_promiscuous(true);  // Reactivate if needed
+  WiFi.mode(WIFI_MODE_NULL);      // Ensure no active Wi-Fi connection
+  WiFi.mode(WIFI_MODE_STA);       // Enable passive sniffing
+  esp_wifi_set_promiscuous_rx_cb(&snifferCallback);  //  set callback
+  esp_wifi_set_promiscuous(true);                    // Enable sniffing
+
+  Serial.println("[Sniffer] Started Wi-Fi Sniffing");
 }
 
 void stopSniffing() {
@@ -70,10 +82,9 @@ void stopSniffing() {
 }
 
 // ==========================
-// Placeholder Compatibility
+// Optional Compatibility Stub
 // ==========================
 void initWiFiSniffer() {
-  // Retained for backward compatibility; use initWiFiPromiscuous instead
   WiFi.mode(WIFI_MODE_NULL);
   esp_wifi_set_promiscuous(false);
   Serial.println("[Sniffer] WiFi Sniffer (stub) ready");
