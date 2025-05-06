@@ -56,3 +56,32 @@ void listenForFingerprintCommand() {
     }
   }
 }
+
+void logUnauthorizedAccess() {
+  String timestamp = getTimeStamp();  // You can replace this with your time method
+  String log = timestamp + " - Unauthorized fingerprint attempt\n";
+
+  // Example for Serial log fallback
+  Serial.print(log);
+
+  // Optional: save to SD or EEPROM
+  // File logFile = SD.open("access_log.txt", FILE_WRITE);
+  // if (logFile) {
+  //   logFile.print(log);
+  //   logFile.close();
+  // }
+}
+
+// Timestamp generator (fallback using millis)
+String getTimeStamp() {
+  unsigned long ms = millis();
+  unsigned long seconds = ms / 1000;
+  unsigned long minutes = seconds / 60;
+  unsigned long hours = minutes / 60;
+  seconds %= 60;
+  minutes %= 60;
+
+  char buffer[20];
+  snprintf(buffer, sizeof(buffer), "%02lu:%02lu:%02lu", hours, minutes, seconds);
+  return String(buffer);
+}

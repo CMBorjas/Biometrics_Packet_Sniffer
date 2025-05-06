@@ -2,10 +2,11 @@
 #include "packet_sniffer.h"
 #include "lcd_ui.h"
 #include "crypto_utils.h"
-#include "isr_handlers.h"
-
 #include <WiFi.h>
 #include "esp_wifi.h"
+#include "../libraries/AES/aes.c"
+
+
 
 #define SIGNAL_INPUT_PIN 15
 #define DEBUG_SERIAL false
@@ -17,6 +18,9 @@ bool biometricTimedOut = false;
 
 unsigned long lastSignalTime = 0;
 unsigned long lastAuthAttempt = 0;
+unsigned long lastActivityTime = 0;
+
+static unsigned long lastStatUpdate = 0;
 
 // 🔐 Forward declaration to prevent compilation error
 void handleFallbackCommand(const String& cmd);
@@ -47,6 +51,7 @@ void setup() {
   lastAuthAttempt = millis();  // Start timeout timer
 }
 
+//====================loop==================================
 void loop() {
   // 🔄 Check for fallback reset over Serial2
   if (Serial2.available()) {
@@ -75,6 +80,10 @@ void loop() {
     }
   }
 
+  if (scanningLocked && millis() - lastStatUpdate > 3000) {
+    showSnifferStats();
+    lastStatUpdate = millis();
+  }
 
   if (!scanningLocked && !biometricTimedOut) {
     listenForFingerprintCommand();  // Start on fingerprint match
