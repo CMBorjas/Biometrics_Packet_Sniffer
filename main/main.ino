@@ -6,8 +6,6 @@
 #include "esp_wifi.h"
 #include "../libraries/AES/aes.c"
 
-
-
 #define SIGNAL_INPUT_PIN 15
 #define DEBUG_SERIAL false
 #define TIMEOUT_MS 300000  // 5 minutes
@@ -33,7 +31,7 @@ extern void stopSniffing();
 void setup() {
   Serial.begin(115200);
   while (!Serial) delay(10);
-
+  delay(1000);
   Serial.println("===== ESP32 BOOT =====");
   Serial2.begin(9600, SERIAL_8N1, 16, 17);  // RX, TX from Arduino
   pinMode(SIGNAL_INPUT_PIN, INPUT);

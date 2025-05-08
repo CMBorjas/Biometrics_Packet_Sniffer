@@ -1,0 +1,27 @@
+# Ignore Python virtual environments
+bio_sniffer_env/
+env/
+venv/
+*.pyc
+__pycache__/
+
+# Ignore Arduino build files
+*.ino.*
+*.elf
+*.hex
+*.bin
+*.eep
+*.map
+*.d
+*.o
+
+# Ignore log or dump files
+*.log
+*.csv
+*.txt
+
+# VS Code settings (optional)
+.vscode/
+
+# Mac and Linux metadata
+.DS_Store
