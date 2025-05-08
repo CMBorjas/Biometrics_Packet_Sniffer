@@ -20,7 +20,7 @@ unsigned long lastActivityTime = 0;
 
 static unsigned long lastStatUpdate = 0;
 
-// 🔐 Forward declaration to prevent compilation error
+//Forward declaration to prevent compilation error
 void handleFallbackCommand(const String& cmd);
 
 extern bool checkBiometricAuthorization();

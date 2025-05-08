@@ -1,5 +1,6 @@
 # Ignore Python virtual environments
 bio_sniffer_env/
+Arduino_Env/
 env/
 venv/
 *.pyc
