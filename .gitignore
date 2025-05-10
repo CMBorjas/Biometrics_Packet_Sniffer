@@ -26,3 +26,6 @@ __pycache__/
 
 # Mac and Linux metadata
 .DS_Store
+
+#Presentations
+*.pptx
